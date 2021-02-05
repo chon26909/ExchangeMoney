@@ -1,15 +1,16 @@
 // To parse this JSON data, do
 //
-//     final welcome = welcomeFromJson(jsonString);
+//     final exchangeRate = exchangeRateFromJson(jsonString);
 
 import 'dart:convert';
 
-Welcome welcomeFromJson(String str) => Welcome.fromJson(json.decode(str));
+ExchangeRate exchangeRateFromJson(String str) =>
+    ExchangeRate.fromJson(json.decode(str));
 
-String welcomeToJson(Welcome data) => json.encode(data.toJson());
+String exchangeRateToJson(ExchangeRate data) => json.encode(data.toJson());
 
-class Welcome {
-  Welcome({
+class ExchangeRate {
+  ExchangeRate({
     this.rates,
     this.base,
     this.date,
@@ -19,7 +20,7 @@ class Welcome {
   String base;
   DateTime date;
 
-  factory Welcome.fromJson(Map<String, dynamic> json) => Welcome(
+  factory ExchangeRate.fromJson(Map<String, dynamic> json) => ExchangeRate(
         rates: json["rates"] == null
             ? null
             : Map.from(json["rates"])

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'MoneyBox.dart';
 import 'package:http/http.dart' as http;
+import 'Exchange.dart';
 
 void main() {
   // var app = MaterialApp(
@@ -35,6 +36,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  ExchangeRate _dataFromAPI;
   //กลุ่มข้อมูล
   // List<FoodMenu> menu = [
   //   FoodMenu("ข้าวผัดกะเพรา", "35", "assets/images/ผัดกะเพราหมูสับ.jpg"),
@@ -47,10 +49,12 @@ class _MyHomePageState extends State<MyHomePage> {
     getExchange();
   }
 
-  Future<void> getExchange() async {
+  Future<ExchangeRate> getExchange() async {
     var res = await http
-        .get("https://api.exchangeratesapi.io/latest?symbols=USD,GBP");
-    print(res.body);
+        .get("https://api.exchangeratesapi.io/latest?symbols=USD,THB");
+    _dataFromAPI = exchangeRateFromJson(res.body);
+
+    return _dataFromAPI;
   }
 
   @override
@@ -62,17 +66,38 @@ class _MyHomePageState extends State<MyHomePage> {
             style: TextStyle(fontSize: 24),
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: [
-              MoneyBox("ยอดคงเหลือ", 10000, Colors.blue, 150),
-              SizedBox(
-                height: 10,
-              ),
-              MoneyBox("รายรับ", 2500, Colors.orange, 100)
-            ],
-          ),
-        ));
+        body: FutureBuilder(
+            future: getExchange(),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                var result = snapshot.data;
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView(
+                    children: [
+                      MoneyBox("สกุลเงิน EUR", 1, Colors.blue, 150),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      MoneyBox("THB", result.rates["THB"], Colors.green, 100),
+                    ],
+                  ),
+                );
+              }
+              return LinearProgressIndicator();
+            }));
   }
 }
+
+// Padding(
+//           padding: const EdgeInsets.all(10.0),
+//           child: Column(
+//             children: [
+//               MoneyBox("ยอดคงเหลือ", 10000, Colors.blue, 150),
+//               SizedBox(
+//                 height: 10,
+//               ),
+//               MoneyBox("รายรับ", 2500, Colors.orange, 100)
+//             ],
+//           ),
+//         )
